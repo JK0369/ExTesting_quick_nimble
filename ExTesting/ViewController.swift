@@ -31,7 +31,18 @@ class ViewController: UIViewController {
     
     // MARK: Properties
     private let disposeBag = DisposeBag()
-    private let viewModel: ViewModelable = ViewModel()
+    private let viewModel: ViewModelable
+    
+    // MARK: Init
+    init(viewModel: ViewModelable) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -41,6 +52,8 @@ class ViewController: UIViewController {
     }
     
     private func configureUI() {
+        view.backgroundColor = .white
+        
         view.addSubview(label)
         NSLayoutConstraint.activate([
             label.centerYAnchor.constraint(equalTo: view.centerYAnchor),

@@ -13,14 +13,25 @@ enum State {
 }
 
 final class ViewModel: ViewModelable {
-    // MARK: State
+    struct Dependency {
+        let count: Int?
+    }
+    
+    private let dependency: Dependency
+    
+    init(dependency: Dependency) {
+        self.dependency = dependency
+        guard let count = dependency.count else { return }
+        countOfViewDidLoadAtDisk = count
+        countOfViewDidLoadAtMemory = count
+    }
     
     // MARK: Output
     var output: RxSwift.Observable<State> {
         outputSubject
     }
     private var outputSubject = PublishSubject<State>()
-    private var countOfViewDidLoad: Int {
+    private var countOfViewDidLoadAtDisk: Int {
         get {
             UserDefaults.standard.integer(forKey: "countOfViewDidLoad")
         }
@@ -28,13 +39,15 @@ final class ViewModel: ViewModelable {
             UserDefaults.standard.setValue(newValue, forKey: "countOfViewDidLoad")
         }
     }
+    var countOfViewDidLoadAtMemory = 0
     
     // MARK: Input
     func input(_ action: Action) {
         switch action {
         case .viewDidLoad:
-            countOfViewDidLoad += 1
-            outputSubject.onNext(.updateCountOfViewDidLoad(count: countOfViewDidLoad))
+            countOfViewDidLoadAtDisk += 1
+            countOfViewDidLoadAtMemory += 1
+            outputSubject.onNext(.updateCountOfViewDidLoad(count: countOfViewDidLoadAtDisk))
         }
     }
 }
