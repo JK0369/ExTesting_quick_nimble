@@ -12,6 +12,12 @@ enum State {
     case updateCountOfViewDidLoad(count: Int)
 }
 
+protocol ViewModelable {
+    var output: Observable<State> { get }
+    
+    func input(_ action: Action)
+}
+
 final class ViewModel: ViewModelable {
     struct Dependency {
         let count: Int?

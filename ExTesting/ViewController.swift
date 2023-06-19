@@ -13,13 +13,12 @@ enum Action {
     case viewDidLoad
 }
 
-protocol ViewModelable {
-    var output: Observable<State> { get }
-    
-    func input(_ action: Action)
+protocol Presentable {
+    var viewModel: ViewModelable { get }
+    var stateObservable: Observable<State> { get }
 }
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, Presentable {
     // MARK: UI
     private let label: UILabel = {
         let label = UILabel()
@@ -31,7 +30,11 @@ class ViewController: UIViewController {
     
     // MARK: Properties
     private let disposeBag = DisposeBag()
-    private let viewModel: ViewModelable
+    private let stateSubject = PublishSubject<State>()
+    let viewModel: ViewModelable
+    var stateObservable: Observable<State> {
+        stateSubject
+    }
     
     // MARK: Init
     init(viewModel: ViewModelable) {
@@ -64,9 +67,14 @@ class ViewController: UIViewController {
     private func bind() {
         viewModel.output
             .observe(on: MainScheduler.instance)
-            .bind(with: self, onNext: { ss, state in
+            .bind(to: stateSubject)
+            .disposed(by: disposeBag)
+        
+        stateSubject
+            .observe(on: MainScheduler.instance)
+            .bind(with: self) { ss, state in
                 ss.handleOutput(state)
-            })
+            }
             .disposed(by: disposeBag)
     }
     

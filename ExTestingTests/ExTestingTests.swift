@@ -13,9 +13,11 @@ import RxSwift
 final class ExTestingTests: QuickSpec {
     override func spec() {
         var viewModel: ViewModelable!
+        var viewController: Presentable!
         
         func setUp(dependency: ViewModel.Dependency) {
             viewModel = ViewModel(dependency: dependency)
+            viewController = ViewControllerMock(viewModel: viewModel)
         }
         
         describe("ExTesting 모듈의 ViewController에서") {
@@ -30,8 +32,9 @@ final class ExTestingTests: QuickSpec {
                 
                 it("디스크에 저장되는 count값 +1하여 viewController에게 전달") {
                     let expectedResult = State.updateCountOfViewDidLoad(count: 8)
-                    expect(viewModel.output)
-                        .toEventually(expectedResult)
+                    
+                    expect(viewController.stateObservable)
+                        .toEventually(equal(expectedResult))
                 }
                 
                 it("메모리에 저장되는 count값 +1하여 viewController에게 전달") {

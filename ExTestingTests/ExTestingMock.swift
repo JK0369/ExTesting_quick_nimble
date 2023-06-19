@@ -6,9 +6,32 @@
 //
 
 import UIKit
-import RxSwift
+@testable import RxSwift
 @testable import ExTesting
 
 // MARK: - ViewController
-final class ViewControllerMock: UIViewController {
+final class ViewControllerMock: Presentable {
+    var viewModel: ViewModelable
+    var stateObservable: Observable<State> {
+        stateReplay
+    }
+    private let stateReplay = ReplaySubject<State>()
+    
+    init(viewModel: ViewModelable) {
+        self.viewModel = viewModel
+        
+        viewModel.output
+            .observe(on: MainScheduler.instance)
+            .bind(to: stateReplay)
+    }
+}
+
+extension State: Equatable {
+    
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        switch (lhs, rhs) {
+        case let (.updateCountOfViewDidLoad(lhsCount), .updateCountOfViewDidLoad(rhsCount)):
+            return lhsCount == rhsCount
+        }
+    }
 }
