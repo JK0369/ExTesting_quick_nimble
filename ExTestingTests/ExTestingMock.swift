@@ -15,7 +15,8 @@ final class ViewControllerMock: Presentable {
     var stateObservable: Observable<State> {
         stateReplay
     }
-    private let stateReplay = ReplaySubject<State>()
+    // 주의: ReplaySubject<State>.createUnbounded()와 ReplaySubject<State>()은 다름
+    private let stateReplay = ReplaySubject<State>.createUnbounded()
     
     init(viewModel: ViewModelable) {
         self.viewModel = viewModel
@@ -32,6 +33,10 @@ extension State: Equatable {
         switch (lhs, rhs) {
         case let (.updateCountOfViewDidLoad(lhsCount), .updateCountOfViewDidLoad(rhsCount)):
             return lhsCount == rhsCount
+        case let (.updateCountOfViewDidLoadOnMemory(lhsCount), .updateCountOfViewDidLoadOnMemory(rhsCount)):
+            return lhsCount == rhsCount
+        default:
+            return false
         }
     }
 }

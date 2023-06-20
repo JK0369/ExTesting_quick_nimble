@@ -8,11 +8,10 @@ public func satisfyAllOf<T>(_ predicates: Predicate<T>...) -> Predicate<T> {
 /// provided in the array of matchers.
 public func satisfyAllOf<T>(_ predicates: [Predicate<T>]) -> Predicate<T> {
     return Predicate.define { actualExpression in
-        let cachedExpression = actualExpression.withCaching()
         var postfixMessages = [String]()
         var status: PredicateStatus = .matches
         for predicate in predicates {
-            let result = try predicate.satisfies(cachedExpression)
+            let result = try predicate.satisfies(actualExpression)
             if result.status == .fail {
                 status = .fail
             } else if result.status == .doesNotMatch, status != .fail {
@@ -22,7 +21,7 @@ public func satisfyAllOf<T>(_ predicates: [Predicate<T>]) -> Predicate<T> {
         }
 
         var msg: ExpectationMessage
-        if let actualValue = try cachedExpression.evaluate() {
+        if let actualValue = try actualExpression.evaluate() {
             msg = .expectedCustomValueTo(
                 "match all of: " + postfixMessages.joined(separator: ", and "),
                 actual: "\(actualValue)"

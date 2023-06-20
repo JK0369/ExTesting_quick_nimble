@@ -35,17 +35,17 @@ class NimbleXCTestUnavailableHandler: AssertionHandler {
     }
 }
 
-#if canImport(Darwin)
+#if !SWIFT_PACKAGE
 /// Helper class providing access to the currently executing XCTestCase instance, if any
-@objc final public class CurrentTestCaseTracker: NSObject, XCTestObservation {
-    @objc public static let sharedInstance = CurrentTestCaseTracker()
+@objc final internal class CurrentTestCaseTracker: NSObject, XCTestObservation {
+    @objc static let sharedInstance = CurrentTestCaseTracker()
 
     private(set) var currentTestCase: XCTestCase?
 
     private var stashed_swift_reportFatalErrorsToDebugger: Bool = false
 
-    @objc public func testCaseWillStart(_ testCase: XCTestCase) {
-        #if (os(macOS) || os(iOS)) && !SWIFT_PACKAGE
+    @objc func testCaseWillStart(_ testCase: XCTestCase) {
+        #if os(macOS) || os(iOS)
         stashed_swift_reportFatalErrorsToDebugger = _swift_reportFatalErrorsToDebugger
         _swift_reportFatalErrorsToDebugger = false
         #endif
@@ -53,10 +53,10 @@ class NimbleXCTestUnavailableHandler: AssertionHandler {
         currentTestCase = testCase
     }
 
-    @objc public func testCaseDidFinish(_ testCase: XCTestCase) {
+    @objc func testCaseDidFinish(_ testCase: XCTestCase) {
         currentTestCase = nil
 
-        #if (os(macOS) || os(iOS)) && !SWIFT_PACKAGE
+        #if os(macOS) || os(iOS)
         _swift_reportFatalErrorsToDebugger = stashed_swift_reportFatalErrorsToDebugger
         #endif
     }
@@ -73,7 +73,7 @@ func isXCTestAvailable() -> Bool {
 }
 
 public func recordFailure(_ message: String, location: SourceLocation) {
-#if !canImport(Darwin)
+#if SWIFT_PACKAGE
     XCTFail("\(message)", file: location.file, line: location.line)
 #else
     if let testCase = CurrentTestCaseTracker.sharedInstance.currentTestCase {

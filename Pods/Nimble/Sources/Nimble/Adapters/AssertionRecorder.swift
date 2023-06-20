@@ -54,11 +54,6 @@ extension NMBExceptionCapture {
 /// Allows you to temporarily replace the current Nimble assertion handler with
 /// the one provided for the scope of the closure.
 ///
-/// @warning
-/// This form of `withAssertionHandler` does not work in any kind of
-/// async context. Use the async form of `withAssertionHandler`
-/// if you are running tests in an async context.
-///
 /// Once the closure finishes, then the original Nimble assertion handler is restored.
 ///
 /// @see AssertionHandler
@@ -91,11 +86,6 @@ public func withAssertionHandler(_ tempAssertionHandler: AssertionHandler,
 /// This can be useful if you want to gather information about expectations
 /// that occur within a closure.
 ///
-/// @warning
-/// This form of `gatherExpectations` does not work in any kind of
-/// async context. Use the async form of `gatherExpectations`
-/// if you are running tests in an async context.
-///
 /// @param silently expectations are no longer send to the default Nimble 
 ///                 assertion handler when this is true. Defaults to false.
 ///
@@ -121,11 +111,6 @@ public func gatherExpectations(silently: Bool = false, closure: () -> Void) -> [
 ///
 /// This can be useful if you want to gather information about failed
 /// expectations that occur within a closure.
-///
-/// @warning
-/// This form of `gatherFailingExpectations` does not work in any kind of
-/// async context. Use the async form of `gatherFailingExpectations`
-/// if you are running tests in an async context.
 ///
 /// @param silently expectations are no longer send to the default Nimble
 ///                 assertion handler when this is true. Defaults to false.

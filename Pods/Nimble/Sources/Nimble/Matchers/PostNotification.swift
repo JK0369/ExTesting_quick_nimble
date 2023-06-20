@@ -5,7 +5,6 @@ import Foundation
 
 internal class NotificationCollector {
     private(set) var observedNotifications: [Notification]
-    private(set) var observedNotificationDescriptions: [String]
     private let notificationCenter: NotificationCenter
     private let names: Set<Notification.Name>
     private var tokens: [NSObjectProtocol]
@@ -13,7 +12,6 @@ internal class NotificationCollector {
     required init(notificationCenter: NotificationCenter, names: Set<Notification.Name> = []) {
         self.notificationCenter = notificationCenter
         self.observedNotifications = []
-        self.observedNotificationDescriptions = []
         self.names = names
         self.tokens = []
     }
@@ -23,7 +21,6 @@ internal class NotificationCollector {
             return notificationCenter.addObserver(forName: name, object: nil, queue: nil) { [weak self] notification in
                 // linux-swift gets confused by .append(n)
                 self?.observedNotifications.append(notification)
-                self?.observedNotificationDescriptions.append(stringify(notification))
             }
         }
 
@@ -64,7 +61,7 @@ private func _postNotifications<Out>(
             withoutCaching: true
         )
 
-        assert(Thread.isMainThread, "Only expecting closure to be evaluated on main thread.")
+        assert(pthread_equal(mainThread, pthread_self()) != 0, "Only expecting closure to be evaluated on main thread.")
         if !once {
             once = true
             _ = try actualExpression.evaluate()
@@ -74,7 +71,7 @@ private func _postNotifications<Out>(
         if collector.observedNotifications.isEmpty {
             actualValue = "no notifications"
         } else {
-            actualValue = "<\(stringify(collector.observedNotificationDescriptions))>"
+            actualValue = "<\(stringify(collector.observedNotifications))>"
         }
 
         var result = try predicate.satisfies(collectorNotificationsExpression)

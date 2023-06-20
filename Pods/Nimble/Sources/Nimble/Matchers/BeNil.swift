@@ -18,28 +18,18 @@ public func beNil<T>() -> Predicate<T> {
     }
 }
 
-/// Represents `nil` value to be used with the operator overloads for `beNil`.
-public struct ExpectationNil: ExpressibleByNilLiteral {
-    public init(nilLiteral: ()) {}
-}
+extension Expectation {
+    /// Represents `nil` value to be used with the operator overloads for `beNil`.
+    public struct Nil: ExpressibleByNilLiteral {
+        public init(nilLiteral: ()) {}
+    }
 
-extension SyncExpectation {
-    public static func == (lhs: SyncExpectation, rhs: ExpectationNil) {
+    public static func == (lhs: Expectation, rhs: Expectation.Nil) {
         lhs.to(beNil())
     }
 
-    public static func != (lhs: SyncExpectation, rhs: ExpectationNil) {
+    public static func != (lhs: Expectation, rhs: Expectation.Nil) {
         lhs.toNot(beNil())
-    }
-}
-
-extension AsyncExpectation {
-    public static func == (lhs: AsyncExpectation, rhs: ExpectationNil) async {
-        await lhs.to(beNil())
-    }
-
-    public static func != (lhs: AsyncExpectation, rhs: ExpectationNil) async {
-        await lhs.toNot(beNil())
     }
 }
 

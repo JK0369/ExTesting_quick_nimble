@@ -6,18 +6,12 @@ public func beVoid() -> Predicate<()> {
     }
 }
 
-public func ==(lhs: SyncExpectation<()>, rhs: ()) {
-    lhs.to(beVoid())
-}
+extension Expectation where T == () {
+    public static func == (lhs: Expectation<()>, rhs: ()) {
+        lhs.to(beVoid())
+    }
 
-public func ==(lhs: AsyncExpectation<()>, rhs: ()) async {
-    await lhs.to(beVoid())
-}
-
-public func !=(lhs: SyncExpectation<()>, rhs: ()) {
-    lhs.toNot(beVoid())
-}
-
-public func !=(lhs: AsyncExpectation<()>, rhs: ()) async {
-    await lhs.toNot(beVoid())
+    public static func != (lhs: Expectation<()>, rhs: ()) {
+        lhs.toNot(beVoid())
+    }
 }

@@ -8,19 +8,15 @@ public func beGreaterThan<T: Comparable>(_ expectedValue: T?) -> Predicate<T> {
     }
 }
 
-public func ><T: Comparable>(lhs: SyncExpectation<T>, rhs: T) {
+public func ><T: Comparable>(lhs: Expectation<T>, rhs: T) {
     lhs.to(beGreaterThan(rhs))
-}
-
-public func ><T: Comparable>(lhs: AsyncExpectation<T>, rhs: T) async {
-    await lhs.to(beGreaterThan(rhs))
 }
 
 #if canImport(Darwin)
 import enum Foundation.ComparisonResult
 
 /// A Nimble matcher that succeeds when the actual value is greater than the expected value.
-public func beGreaterThan<T: NMBComparable>(_ expectedValue: T?) -> Predicate<T> {
+public func beGreaterThan(_ expectedValue: NMBComparable?) -> Predicate<NMBComparable> {
     let errorMessage = "be greater than <\(stringify(expectedValue))>"
     return Predicate.simple(errorMessage) { actualExpression in
         let actualValue = try actualExpression.evaluate()
@@ -30,12 +26,8 @@ public func beGreaterThan<T: NMBComparable>(_ expectedValue: T?) -> Predicate<T>
     }
 }
 
-public func ><T: NMBComparable>(lhs: SyncExpectation<T>, rhs: T?) {
+public func > (lhs: Expectation<NMBComparable>, rhs: NMBComparable?) {
     lhs.to(beGreaterThan(rhs))
-}
-
-public func ><T: NMBComparable>(lhs: AsyncExpectation<T>, rhs: T?) async {
-    await lhs.to(beGreaterThan(rhs))
 }
 
 extension NMBPredicate {

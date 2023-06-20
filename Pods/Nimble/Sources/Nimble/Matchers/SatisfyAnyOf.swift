@@ -8,11 +8,10 @@ public func satisfyAnyOf<T>(_ predicates: Predicate<T>...) -> Predicate<T> {
 /// provided in the array of matchers.
 public func satisfyAnyOf<T>(_ predicates: [Predicate<T>]) -> Predicate<T> {
         return Predicate.define { actualExpression in
-            let cachedExpression = actualExpression.withCaching()
             var postfixMessages = [String]()
             var status: PredicateStatus = .doesNotMatch
             for predicate in predicates {
-                let result = try predicate.satisfies(cachedExpression)
+                let result = try predicate.satisfies(actualExpression)
                 if result.status == .fail {
                     status = .fail
                 } else if result.status == .matches, status != .fail {
@@ -22,7 +21,7 @@ public func satisfyAnyOf<T>(_ predicates: [Predicate<T>]) -> Predicate<T> {
             }
 
             var msg: ExpectationMessage
-            if let actualValue = try cachedExpression.evaluate() {
+            if let actualValue = try actualExpression.evaluate() {
                 msg = .expectedCustomValueTo(
                     "match one of: " + postfixMessages.joined(separator: ", or "),
                     actual: "\(actualValue)"

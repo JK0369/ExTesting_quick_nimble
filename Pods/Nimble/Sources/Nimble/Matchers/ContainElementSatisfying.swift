@@ -10,8 +10,10 @@ public func containElementSatisfying<S: Sequence>(
         }
 
         if let sequence = try actualExpression.evaluate() {
-            for object in sequence where predicate(object) {
-                return PredicateResult(bool: true, message: message)
+            for object in sequence {
+                if predicate(object) {
+                    return PredicateResult(bool: true, message: message)
+                }
             }
 
             return PredicateResult(bool: false, message: message)

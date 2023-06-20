@@ -11,6 +11,7 @@ target 'ExTesting' do
     
     pod 'Quick'
     pod 'Nimble'
+    pod 'RxNimble'
   end
 
   target 'ExTestingUITests' do

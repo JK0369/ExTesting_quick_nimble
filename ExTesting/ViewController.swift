@@ -82,6 +82,8 @@ class ViewController: UIViewController, Presentable {
         switch state {
         case let .updateCountOfViewDidLoad(count):
             label.text = "\(count)"
+        case let .updateCountOfViewDidLoadOnMemory(count):
+            print("memory:\(count)")
         }
     }
 }

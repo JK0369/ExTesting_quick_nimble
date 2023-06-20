@@ -12,23 +12,24 @@ private enum ErrorResult {
 /// Only classes, protocols, methods, properties, and subscript declarations can be
 /// bridges to Objective-C via the @objc keyword. This class encapsulates callback-style
 /// asynchronous waiting logic so that it may be called from Objective-C and Swift.
-public class NMBWait: NSObject {
+internal class NMBWait: NSObject {
 // About these kind of lines, `@objc` attributes are only required for Objective-C
-// support, so that should be conditional on Darwin platforms.
-#if canImport(Darwin)
+// support, so that should be conditional on Darwin platforms and normal Xcode builds
+// (non-SwiftPM builds).
+#if canImport(Darwin) && !SWIFT_PACKAGE
     @objc
-    public class func until(
+    internal class func until(
         timeout: TimeInterval,
         file: FileString = #file,
         line: UInt = #line,
         action: @escaping (@escaping () -> Void) -> Void) {
-            // Convert TimeInterval to NimbleTimeInterval
-            until(timeout: timeout.nimbleInterval, file: file, line: line, action: action)
+            // Convert TimeInterval to DispatchTimeInterval
+            until(timeout: timeout.dispatchInterval, file: file, line: line, action: action)
     }
 #endif
 
-    public class func until(
-        timeout: NimbleTimeInterval,
+    internal class func until(
+        timeout: DispatchTimeInterval,
         file: FileString = #file,
         line: UInt = #line,
         action: @escaping (@escaping () -> Void) -> Void) {
@@ -38,8 +39,8 @@ public class NMBWait: NSObject {
     }
 
     // Using a throwable closure makes this method not objc compatible.
-    public class func throwableUntil(
-        timeout: NimbleTimeInterval,
+    internal class func throwableUntil(
+        timeout: DispatchTimeInterval,
         file: FileString = #file,
         line: UInt = #line,
         action: @escaping (@escaping () -> Void) throws -> Void) {
@@ -85,16 +86,16 @@ public class NMBWait: NSObject {
             }
     }
 
-#if canImport(Darwin)
+#if canImport(Darwin) && !SWIFT_PACKAGE
     @objc(untilFile:line:action:)
-    public class func until(
+    internal class func until(
         _ file: FileString = #file,
         line: UInt = #line,
         action: @escaping (@escaping () -> Void) -> Void) {
         until(timeout: .seconds(1), file: file, line: line, action: action)
     }
 #else
-    public class func until(
+    internal class func until(
         _ file: FileString = #file,
         line: UInt = #line,
         action: @escaping (@escaping () -> Void) -> Void) {
@@ -103,7 +104,7 @@ public class NMBWait: NSObject {
 #endif
 }
 
-internal func blockedRunLoopErrorMessageFor(_ fnName: String, leeway: NimbleTimeInterval) -> String {
+internal func blockedRunLoopErrorMessageFor(_ fnName: String, leeway: DispatchTimeInterval) -> String {
     // swiftlint:disable:next line_length
     return "\(fnName) timed out but was unable to run the timeout handler because the main thread is unresponsive (\(leeway.description) is allow after the wait times out). Conditions that may cause this include processing blocking IO on the main thread, calls to sleep(), deadlocks, and synchronous IPC. Nimble forcefully stopped run loop which may cause future failures in test run."
 }
@@ -115,8 +116,7 @@ internal func blockedRunLoopErrorMessageFor(_ fnName: String, leeway: NimbleTime
 /// 
 /// This function manages the main run loop (`NSRunLoop.mainRunLoop()`) while this function
 /// is executing. Any attempts to touch the run loop may cause non-deterministic behavior.
-@available(*, noasync, message: "the sync version of `waitUntil` does not work in async contexts. Use the async version with the same name as a drop-in replacement")
-public func waitUntil(timeout: NimbleTimeInterval = PollingDefaults.timeout, file: FileString = #file, line: UInt = #line, action: @escaping (@escaping () -> Void) -> Void) {
+public func waitUntil(timeout: DispatchTimeInterval = AsyncDefaults.timeout, file: FileString = #file, line: UInt = #line, action: @escaping (@escaping () -> Void) -> Void) {
     NMBWait.until(timeout: timeout, file: file, line: line, action: action)
 }
 

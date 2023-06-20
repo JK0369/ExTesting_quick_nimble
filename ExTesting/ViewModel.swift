@@ -10,6 +10,7 @@ import RxCocoa
 
 enum State {
     case updateCountOfViewDidLoad(count: Int)
+    case updateCountOfViewDidLoadOnMemory(count: Int)
 }
 
 protocol ViewModelable {
@@ -54,6 +55,7 @@ final class ViewModel: ViewModelable {
             countOfViewDidLoadAtDisk += 1
             countOfViewDidLoadAtMemory += 1
             outputSubject.onNext(.updateCountOfViewDidLoad(count: countOfViewDidLoadAtDisk))
+            outputSubject.onNext(.updateCountOfViewDidLoadOnMemory(count: countOfViewDidLoadAtMemory))
         }
     }
 }
